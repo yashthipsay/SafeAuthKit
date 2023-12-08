@@ -1,3 +1,4 @@
+"use client"
 import React, { createContext, useState, useEffect } from 'react'
 import { ethers } from 'ethers'
 import { SafeAuthPack, AuthKitSignInData, SafeAuthInitOptions } from '@safe-global/auth-kit'

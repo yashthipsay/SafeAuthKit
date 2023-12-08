@@ -1,3 +1,4 @@
+"use client"
 import { Button, Typography } from '@mui/material'
 
 type LoginWithMoneriumProps = {

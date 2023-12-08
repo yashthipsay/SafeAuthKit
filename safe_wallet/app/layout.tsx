@@ -8,6 +8,7 @@ import { useWaku } from '@waku/react'
 import { createEncoder, createDecoder } from '@waku/sdk'
 import protobuf from 'protobufjs'
 import { LightNodeProvider } from '@waku/react'
+import { BrowserRouter } from 'react-router-dom'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -22,7 +23,7 @@ export default function RootLayout({
 
   const NODE_OPTIONS = { defaultBootstrap: true };
   return (
-
+<BrowserRouter>
 <LightNodeProvider options={NODE_OPTIONS}>
     <html lang="en">
       <body className={inter.className}>
@@ -30,6 +31,7 @@ export default function RootLayout({
         </body>
     </html>
 </LightNodeProvider>
+</BrowserRouter>
   )
 
 }
