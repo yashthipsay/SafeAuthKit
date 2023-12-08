@@ -10,8 +10,11 @@ import {
 import {EthHashInfo} from '@safe-global/safe-react-components'
 import Safe, {EthersAdapter} from '@safe-global/protocol-kit'
 import {ethers, BrowserProvider, Eip1193Provider} from 'ethers';
-import AppBar from './components/Appbar';
+import AppBar from './Appbar';
 import { getSafeTxV4TypedData, getTypedData, getV3TypedData } from './typedData'
+import { Box, Button, Divider, Grid, Typography } from '@mui/material'
+import {createTheme} from '@mui/system';
+
 
 export default function Home() {
   const [safeAuthPack, setSafeAuthPack] = useState<SafeAuthPack>()
@@ -91,7 +94,11 @@ export default function Home() {
   const login = async() => {
     const signInInfo = await safeAuthPack?.signIn()
 
-    setSafeAuthSignInResponse(signInInfo)
+    if (signInInfo) {
+      setSafeAuthSignInResponse(signInInfo)
+    } else {
+      setSafeAuthSignInResponse(null)
+    }
     setIsAuthenticated(true)
   }
 
@@ -186,108 +193,227 @@ export default function Home() {
     uiConsole('Transaction Response', tx)
   }
 
+  const switchChain = async () => {
+    const result = await provider?.send('wallet_switchEthereumChain', [
+      {
+        chainId: '0x1'
+      }
+    ])
+
+    uiConsole('Switch Chain', result)
+  }
+
+  const addChain = async () => {
+    const result = await provider?.send('wallet_addEthereumChain', [
+      {
+        chainId: '0x2105',
+        chainName: 'Base',
+        nativeCurrency: {
+          name: 'ETH',
+          symbol: 'ETH',
+          decimals: 18
+        },
+        rpcUrls: ['https://base.publicnode.com'],
+        blockExplorerUrls: ['https://basescan.org/']
+      }
+    ])
+
+    uiConsole(`Add chain`, result)
+  }
+
   const uiConsole = (title: string, message: unknown) => {
     setConsoleTitle(title)
     setConsoleMessage(typeof message === 'string' ? message : JSON.stringify(message, null, 2))
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    <>
+    <AppBar
+        onLogin={login}
+        onLogout={logout}
+        userInfo={userInfo || undefined}
+        isLoggedIn={!!safeAuthPack?.isAuthenticated}
+      />
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-      <div onClick={login}>
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-          </div>
-
-        <button onClick={(e) => {logout()}}>
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-          </button>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    
+      {safeAuthSignInResponse?.eoa && (
+        <Grid container>
+          <Grid item md={4} p={4}>
+            <Typography variant="h3" color="secondary" fontWeight={700}>
+              Signer
+            </Typography>
+            <Divider sx={{ my: 3 }} />
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="h4" color="primary" fontWeight="bold">
+              Chain{' '}
+              <Typography component="span" color="secondary" fontSize="1.45rem">
+                {chainId}
+              </Typography>
+            </Typography>
+            <Typography variant="h4" color="primary" sx={{ my: 1 }} fontWeight="bold">
+              Balance{' '}
+              <Typography component="span" color="secondary" fontSize="1.45rem">
+                {balance}
+              </Typography>
+            </Typography>
+            <Divider sx={{ my: 2 }} />
+            <Button
+              variant="contained"
+              fullWidth
+              color="secondary"
+              sx={{ my: 1 }}
+              onClick={() => getUserInfo()}
+            >
+              getUserInfo
+            </Button>
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              sx={{ my: 1 }}
+              onClick={() => getAccounts()}
+            >
+              eth_accounts
+            </Button>
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              sx={{ my: 1 }}
+              onClick={() => getChainId()}
+            >
+              eth_chainId
+            </Button>
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              sx={{ my: 1 }}
+              onClick={() => signMessage('Hello World', 'personal_sign')}
+            >
+              personal_sign
+            </Button>
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              sx={{ my: 1 }}
+              onClick={() =>
+                signMessage(
+                  '0x47173285a8d7341e5e972fc677286384f802f8ef42a5ec5f03bbfa254cb01fad',
+                  'eth_sign'
+                )
+              }
+            >
+              eth_sign
+            </Button>
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              sx={{ my: 1 }}
+              onClick={() => signMessage(getTypedData(), 'eth_signTypedData')}
+            >
+              eth_signTypedData
+            </Button>
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              sx={{ my: 1 }}
+              onClick={() => signMessage(getV3TypedData(chainId || ''), 'eth_signTypedData_v3')}
+            >
+              eth_signTypedData_v3
+            </Button>
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              sx={{ my: 1 }}
+              onClick={() =>
+                signMessage(getSafeTxV4TypedData(chainId || ''), 'eth_signTypedData_v4')
+              }
+            >
+              eth_signTypedData_v4
+            </Button>
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              sx={{ my: 1 }}
+              onClick={() => sendTransaction()}
+            >
+              eth_sendTransaction
+            </Button>
+            <Divider sx={{ my: 2 }} />
+            <Button
+              variant="outlined"
+              fullWidth
+              color="secondary"
+              sx={{ my: 1 }}
+              onClick={() => switchChain()}
+            >
+              wallet_switchEthereumChain
+            </Button>{' '}
+            <Button
+              variant="outlined"
+              fullWidth
+              color="secondary"
+              sx={{ my: 1 }}
+              onClick={() => addChain()}
+            >
+              wallet_addEthereumChain
+            </Button>
+          </Grid>
+          <Grid item md={3} p={4}>
+            <>
+              <Typography variant="h3" color="secondary" fontWeight={700}>
+                Safe accounts
+              </Typography>
+              <Divider sx={{ my: 2 }} />
+              {safeAuthSignInResponse?.safes?.length ? (
+                safeAuthSignInResponse?.safes?.map((safe, index) => (
+                  <>
+                    <Box sx={{ my: 3 }} key={index}>
+                      <EthHashInfo address={safe} showCopyButton shortAddress={true} />
+                    </Box>
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      color="primary"
+                      onClick={() => signAndExecuteSafeTx(index)}
+                    >
+                      Sign and execute
+                    </Button>
+                    <Divider sx={{ my: 3 }} />
+                  </>
+                ))
+              ) : (
+                <Typography variant="body1" color="secondary" fontWeight={700}>
+                  No Available Safes
+                </Typography>
+              )}
+            </>
+          </Grid>
+          <Grid item md={5} p={4}>
+            <Typography variant="h3" color="secondary" fontWeight={700}>
+              Console
+            </Typography>
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="body1" color="primary" fontWeight={700}>
+              {consoleTitle}
+            </Typography>
+            <Typography
+              variant="body1"
+              color="secondary"
+              sx={{ mt: 2, overflowWrap: 'break-word' }}
+            >
+              {consoleMessage}
+            </Typography>
+          </Grid>
+        </Grid>
+      )}
+    
+    </>
   )
 }

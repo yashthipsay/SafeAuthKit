@@ -11,9 +11,11 @@
   "dependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "@monerium/sdk": "^2.8.0",
     "@mui/material": "^5.14.20",
     "@safe-global/api-kit": "^2.0.0",
     "@safe-global/auth-kit": "^2.0.0",
+    "@safe-global/onramp-kit": "^2.0.0",
     "@safe-global/protocol-kit": "^2.0.0",
     "@safe-global/safe-core-sdk-types": "^3.0.1",
     "@safe-global/safe-react-components": "^2.0.6",
